@@ -188,6 +188,7 @@ def main():
     n4 = Node(4, 0, 1, 0)
 
     e1 = Element(1, [n1, n2, n3, n4], grayscale=255)
+    test_inp.nodes = [n1, n2, n3, n4]
 
     test_inp.elements = [e1]
     test_inp.write()
