@@ -187,8 +187,14 @@ def main():
     n3 = Node(3, 1, 1, 0)
     n4 = Node(4, 0, 1, 0)
 
-    e1 = Element(1, [n1, n2, n3, n4], grayscale=255)
-    test_inp.nodes = [n1, n2, n3, n4]
+    n5 = Node(5, 0, 0, 1)
+    n6 = Node(6, 1, 0, 1)
+    n7 = Node(7, 1, 1, 1)
+    n8 = Node(8, 0, 1, 1)
+
+
+    e1 = Element(1, [n1, n2, n3, n4, n5, n6, n7, n8], grayscale=255)
+    test_inp.nodes = [n1, n2, n3, n4, n5, n6, n7, n8]
 
     test_inp.elements = [e1]
     test_inp.write()
