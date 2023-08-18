@@ -77,7 +77,7 @@ class Elset:
         return lines
 
 
-# TODO: Section
+
 # ** Section: FR4
 # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
 # ,
