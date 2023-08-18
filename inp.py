@@ -194,15 +194,15 @@ test_inp = Inp(
 
 
 def main():
-    n1 = Node(1, 0, 0, 0)
-    n2 = Node(2, 1, 0, 0)
-    n3 = Node(3, 1, 1, 0)
-    n4 = Node(4, 0, 1, 0)
+    n1 = Node(0, 0, 0)
+    n2 = Node(1, 0, 0)
+    n3 = Node(1, 1, 0)
+    n4 = Node(0, 1, 0)
 
-    n5 = Node(5, 0, 0, 1)
-    n6 = Node(6, 1, 0, 1)
-    n7 = Node(7, 1, 1, 1)
-    n8 = Node(8, 0, 1, 1)
+    n5 = Node(0, 0, 1)
+    n6 = Node(1, 0, 1)
+    n7 = Node(1, 1, 1)
+    n8 = Node(0, 1, 1)
 
 
     e1 = Element(1, [n1, n2, n3, n4, n5, n6, n7, n8], grayscale=255)
@@ -211,8 +211,45 @@ def main():
     test_inp.elements = [e1]
     test_inp.write()
 
+def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
+    image = Image.open(bmp_path).convert("L")  # Open and convert to grayscale
+    width, height = image.size
 
+    elements = []
+    nodes = []
+
+    for y in range(height - 1):
+        for x in range(width - 1):
+            n1 = Node(x, y, 0)
+            n2 = Node(x + 1, y, 0)
+            n3 = Node(x + 1, y + 1, 0)
+            n4 = Node(x, y + 1, 0)
+
+            n5 = Node(x, y, thickness)
+            n6 = Node(x + 1, y, thickness)
+            n7 = Node(x + 1, y + 1, thickness)
+            n8 = Node(x, y + 1, thickness)
+
+            grayscale_values = [
+                image.getpixel((x, y)),
+                image.getpixel((x + 1, y)),
+                image.getpixel((x + 1, y + 1)),
+                image.getpixel((x, y + 1)),
+            ]
+
+            # Calculate the average grayscale value
+            avg_grayscale = sum(grayscale_values) // 4
+
+            if avg_grayscale < 255:  # Not white
+                e = Element([n1, n2, n3, n4, n5, n6, n7, n8], grayscale=avg_grayscale)
+                elements.append(e)
+                nodes += [n1, n2, n3, n4, n5, n6, n7, n8]
+
+    test_inp.nodes = nodes
+    test_inp.elements = elements
+    test_inp.write()
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    read_bmp_and_create_elements()
