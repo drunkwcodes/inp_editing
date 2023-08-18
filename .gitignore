@@ -1,4 +1,4 @@
 *.inp
 *.rpy
-*.rpy.1
+*.rpy.*
 __pycache__/
