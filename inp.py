@@ -252,4 +252,4 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
 
 if __name__ == "__main__":
     # main()
-    read_bmp_and_create_elements()
+    read_bmp_and_create_elements(bmp_path="resized_200x200.bmp")
