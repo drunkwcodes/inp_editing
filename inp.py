@@ -1,23 +1,35 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Iterator
+import itertools
 
 from PIL import Image
 
 
 @dataclass
-class Node:
-    no: int
+class Node: 
     x: float
     y: float
     z: float
+    no: int | None = None
+    id_iter = itertools.count(start=1)
+
+    def __post_init__(self):
+        if self.no is None:
+            self.no = next(self.id_iter)
+
 
 
 @dataclass
 class Element:
-    no: int
     nodes: List[Node]
     grayscale: int = 255
+    no: int | None = None
+    id_iter = itertools.count(start=1)
+
+    def __post_init__(self):
+        if self.no is None:
+            self.no = next(self.id_iter)
 
 
 
