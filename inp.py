@@ -1,13 +1,13 @@
+import itertools
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Iterator
-import itertools
+from typing import Iterator, List
 
 from PIL import Image
 
 
 @dataclass
-class Node: 
+class Node:
     x: float
     y: float
     z: float
@@ -17,7 +17,6 @@ class Node:
     def __post_init__(self):
         if self.no is None:
             self.no = next(self.id_iter)
-
 
 
 @dataclass
@@ -30,9 +29,6 @@ class Element:
     def __post_init__(self):
         if self.no is None:
             self.no = next(self.id_iter)
-
-
-
 
 
 @dataclass
@@ -63,6 +59,7 @@ fr4 = Material(
     specific_heat=1.38600e09,
 )
 
+
 @dataclass
 class Elset:
     name: str
@@ -79,10 +76,12 @@ class Elset:
                 line = " "
         return lines
 
+
 # TODO: Section
 # ** Section: FR4
 # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
 # ,
+
 
 @dataclass
 class Section:
@@ -90,7 +89,6 @@ class Section:
     elset: Elset
     orientation: str
     material: Material
-
 
 
 @dataclass
@@ -168,7 +166,7 @@ class Inp:
             ]
             lines += [","]
         return lines
-    
+
     def dump_elsets(self):
         lines = []
         if self.elsets is None:
@@ -204,12 +202,12 @@ def main():
     n7 = Node(1, 1, 1)
     n8 = Node(0, 1, 1)
 
-
     e1 = Element(1, [n1, n2, n3, n4, n5, n6, n7, n8], grayscale=255)
     test_inp.nodes = [n1, n2, n3, n4, n5, n6, n7, n8]
 
     test_inp.elements = [e1]
     test_inp.write()
+
 
 def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
     image = Image.open(bmp_path).convert("L")  # Open and convert to grayscale
