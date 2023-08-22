@@ -1,7 +1,7 @@
 import itertools
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, List
+from typing import Iterator, List, Tuple
 
 from PIL import Image
 
@@ -20,18 +20,6 @@ class Node:
 
 
 @dataclass
-class Element:
-    nodes: List[Node]
-    grayscale: int = 255
-    no: int | None = None
-    id_iter = itertools.count(start=1)
-
-    def __post_init__(self):
-        if self.no is None:
-            self.no = next(self.id_iter)
-
-
-@dataclass
 class Material:
     name: str
     density: float | None = None
@@ -39,6 +27,29 @@ class Material:
     conductivity: float | None = None
     specific_heat: float | None = None
     expansion: float | None = None
+
+
+@dataclass
+class Layer:
+    name: str
+    thickness: float
+    material_type: Material | None = None
+    thickness_unit: str = "MM"
+
+
+
+
+@dataclass
+class Element:
+    nodes: List[Node]
+    grayscale: int = 255
+    no: int | None = None
+    material: Material | None = None
+    id_iter = itertools.count(start=1)
+
+    def __post_init__(self):
+        if self.no is None:
+            self.no = next(self.id_iter)
 
 
 copper_fr4 = Material(
@@ -59,6 +70,52 @@ fr4 = Material(
     specific_heat=1.38600e09,
 )
 
+layer_fr4 = Layer(
+    name="FR4",
+    thickness=0.1,
+    material_type=fr4,
+)
+
+layer_copper = Layer(
+    name="Copper",
+    thickness=0.1,
+    material_type=copper_fr4,
+)
+
+layers = [layer_fr4, layer_copper]
+
+def generate_element(x, y, z_top, z_bottom, grayscale, material: Material) -> Tuple[Element, list[Node]]:
+    n1 = Node(x, y, z_top)
+    n2 = Node(x + 1, y, z_top)
+    n3 = Node(x + 1, y + 1, z_top)
+    n4 = Node(x, y + 1, z_top)
+
+    n5 = Node(x, y, z_bottom)
+    n6 = Node(x + 1, y, z_bottom)
+    n7 = Node(x + 1, y + 1, z_bottom)
+    n8 = Node(x, y + 1, z_bottom)
+
+    nodes = [n1, n2, n3, n4, n5, n6, n7, n8]
+
+    return Element(
+        nodes=nodes,
+        material=material,
+        grayscale=grayscale,
+    ), nodes
+
+
+def generate_element_by_layers(x, y, layers: list[Layer], grayscale: int) -> Tuple[list[Element], list[Node]]:
+    # The first layer is the top layer, the last layer is the bottom layer, -z is the thickness
+    zs = [0]
+    for layer in layers:
+        zs.append(zs[-1] - layer.thickness)
+    elements = []
+    total_nodes = []
+    for lindex, layer in enumerate(layers):
+        element, nodes = generate_element(x, y, z_top=zs[lindex], z_bottom=zs[lindex + 1], grayscale=grayscale, material=layer.material_type)
+        elements.append(element)
+        total_nodes += nodes
+    return elements, total_nodes
 
 @dataclass
 class Elset:
@@ -75,7 +132,6 @@ class Elset:
                 lines.append(line)
                 line = " "
         return lines
-
 
 
 # ** Section: FR4
@@ -218,15 +274,6 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
 
     for y in range(height - 1):
         for x in range(width - 1):
-            n1 = Node(x, y, 0)
-            n2 = Node(x + 1, y, 0)
-            n3 = Node(x + 1, y + 1, 0)
-            n4 = Node(x, y + 1, 0)
-
-            n5 = Node(x, y, thickness)
-            n6 = Node(x + 1, y, thickness)
-            n7 = Node(x + 1, y + 1, thickness)
-            n8 = Node(x, y + 1, thickness)
 
             grayscale_values = [
                 image.getpixel((x, y)),
@@ -239,9 +286,9 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
             avg_grayscale = sum(grayscale_values) // 4
 
             if avg_grayscale < 255:  # Not white
-                e = Element([n1, n2, n3, n4, n5, n6, n7, n8], grayscale=avg_grayscale)
-                elements.append(e)
-                nodes += [n1, n2, n3, n4, n5, n6, n7, n8]
+                es, ns = generate_element_by_layers(x, y, layers=layers, grayscale=avg_grayscale)
+                elements += es
+                nodes += ns
 
     test_inp.nodes = nodes
     test_inp.elements = elements

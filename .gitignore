@@ -2,3 +2,5 @@
 *.rpy
 *.rpy.*
 __pycache__/
+*.rec
+*.log
