@@ -11,3 +11,5 @@ __pycache__/
 *.odb_f
 *.prt
 *.sim
+*.pyc
+*.msg
