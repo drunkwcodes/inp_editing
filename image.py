@@ -7,11 +7,11 @@ from PIL import Image
 
 def main():
     # Read image and show
-    imagePath = "pnlgds.png"
-    image = cv2.imread(imagePath)
-    plt.imshow(image)
-    plt.axis("off")  # 隱藏座標軸
-    plt.show()
+    imagePath = "pnlgds_b.png"
+    # image = cv2.imread(imagePath)
+    # plt.imshow(image)
+    # plt.axis("off")  # 隱藏座標軸
+    # plt.show()
 
     # Convert to black white
     image = Image.open(imagePath)

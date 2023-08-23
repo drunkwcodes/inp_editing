@@ -4,3 +4,10 @@
 __pycache__/
 *.rec
 *.log
+*.com
+*.dat
+*.ipm
+*.odb
+*.odb_f
+*.prt
+*.sim
