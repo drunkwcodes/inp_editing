@@ -90,7 +90,7 @@ layer_copper = Layer(
     material_type=copper_fr4,
 )
 
-layers = [layer_fr4, layer_copper]
+
 
 
 def generate_element(
@@ -277,13 +277,14 @@ class Inp:
             f.writelines(line + "\n" for line in self.dump_elsets())
 
 
-test_inp = Inp(
-    heading=r"D:\projects\inp_editing\test.inp",
-    materials=[copper_fr4, fr4],
-)
+
 
 
 def main():
+    test_inp = Inp(
+        heading=r"D:\projects\inp_editing\test.inp",
+        materials=[copper_fr4, fr4],
+    )
     n1 = Node(0, 0, 0)
     n2 = Node(1, 0, 0)
     n3 = Node(1, 1, 0)
@@ -308,6 +309,12 @@ def main():
 
 
 def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
+    test_inp = Inp(
+        heading=r"D:\projects\inp_editing\test.inp",
+        materials=[copper_fr4, fr4],
+    )
+    layers = [layer_fr4, layer_copper]
+
     image = Image.open(bmp_path).convert("L")  # Open and convert to grayscale
     width, height = image.size
 
