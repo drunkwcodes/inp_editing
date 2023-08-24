@@ -96,7 +96,15 @@ layers = [layer_fr4, layer_copper]
 def generate_element(
     x, y, z_top, z_bottom, grayscale, material: Material, nodes: list[Node]
 ) -> Tuple[Element, list[Node]]:
+    print(f"{node_no(nodes, x, y, z_bottom) = }")
+    print(f"{nodes = }")
+    try:
+        input("Press Enter...")
+    except KeyboardInterrupt:
+        exit(1)
+
     n1 = Node(x, y, z_bottom, no=node_no(nodes, x, y, z_bottom))
+    
     n2 = Node(x + 1, y, z_bottom, no=node_no(nodes, x + 1, y, z_bottom))
     n3 = Node(x + 1, y + 1, z_bottom, no=node_no(nodes, x + 1, y + 1, z_bottom))
     n4 = Node(x, y + 1, z_bottom, no=node_no(nodes, x, y + 1, z_bottom))
@@ -128,7 +136,7 @@ def generate_element_by_layers(
     elements = []
     total_nodes = []
     for lindex, layer in enumerate(layers):
-        element, nodes = generate_element(
+        element, ns = generate_element(
             x,
             y,
             z_top=zs[lindex + 1],
@@ -138,7 +146,8 @@ def generate_element_by_layers(
             nodes=total_nodes,
         )
         elements.append(element)
-        total_nodes += nodes
+        total_nodes += ns
+        print(f"{total_nodes = }")
 
     total_nodes = list(set(total_nodes))
     return elements, total_nodes
@@ -327,6 +336,9 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
     test_inp.nodes = nodes
     test_inp.elements = elements
     test_inp.write()
+
+    # test
+    print(f"{node_no(nodes, 26, 5, 0) = }")
 
 
 if __name__ == "__main__":
