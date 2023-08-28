@@ -127,27 +127,47 @@ def generate_element(
 
 
 def generate_element_by_layers(
-    x, y, layers: list[Layer], grayscale: int
+    x, y, layers: list[Layer], grayscale: int, total_nodes: list[Node]
 ) -> Tuple[list[Element], list[Node]]:
     # The first layer is the bottom layer, the last layer is the top layer, z is the thickness
     zs = [0]
     for layer in layers:
         zs.append(zs[-1] + layer.thickness)
     elements = []
-    total_nodes = []
+    nodes = []
     for lindex, layer in enumerate(layers):
-        element, ns = generate_element(
-            x,
-            y,
-            z_top=zs[lindex + 1],
-            z_bottom=zs[lindex],
-            grayscale=grayscale,
+        # element, ns = generate_element(
+        #     x,
+        #     y,
+        #     z_top=zs[lindex + 1],
+        #     z_bottom=zs[lindex],
+        #     grayscale=grayscale,
+        #     material=layer.material_type,
+        #     nodes=total_nodes,
+        # )
+        # print(f"{total_nodes = }")
+        z_top=zs[lindex + 1]
+        z_bottom=zs[lindex]
+        n1 = Node(x, y, z_bottom, no=node_no(total_nodes, x, y, z_bottom))
+    
+        n2 = Node(x + 1, y, z_bottom, no=node_no(total_nodes, x + 1, y, z_bottom))
+        n3 = Node(x + 1, y + 1, z_bottom, no=node_no(total_nodes, x + 1, y + 1, z_bottom))
+        n4 = Node(x, y + 1, z_bottom, no=node_no(total_nodes, x, y + 1, z_bottom))
+
+        n5 = Node(x, y, z_top, no=node_no(total_nodes, x, y, z_top))
+        n6 = Node(x + 1, y, z_top, no=node_no(total_nodes, x + 1, y, z_top))
+        n7 = Node(x + 1, y + 1, z_top, no=node_no(total_nodes, x + 1, y + 1, z_top))
+        n8 = Node(x, y + 1, z_top, no=node_no(total_nodes, x, y + 1, z_top))
+
+        nodes = [n1, n2, n3, n4, n5, n6, n7, n8]
+        element = Element(
+            nodes=nodes,
             material=layer.material_type,
-            nodes=total_nodes,
+            grayscale=grayscale,
         )
         elements.append(element)
-        total_nodes += ns
-        print(f"{total_nodes = }")
+        total_nodes += nodes
+        # print(f"{total_nodes = }")
 
     total_nodes = list(set(total_nodes))
     return elements, total_nodes
@@ -335,7 +355,7 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
 
             if avg_grayscale < 255:  # Not white
                 es, ns = generate_element_by_layers(
-                    x, y, layers=layers, grayscale=avg_grayscale
+                    x, y, layers=layers, grayscale=avg_grayscale, total_nodes=nodes
                 )
                 elements += es
                 nodes += ns
@@ -345,7 +365,7 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
     test_inp.write()
 
     # test
-    print(f"{node_no(nodes, 26, 5, 0) = }")
+    # print(f"{node_no(nodes, 26, 5, 0) = }")
 
 
 if __name__ == "__main__":
