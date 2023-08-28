@@ -1,5 +1,1 @@
-# Abaqus Inp File Generator
-
-### Run
-
-`python inp.py`
+# inp_editing
