@@ -184,19 +184,32 @@ def generate_element_by_layers(
 @dataclass
 class Elset:
     name: str
-    elements: list[int]
+    elements: list[Element]
 
     def dump(self):
         lines = [f"*Elset, elset={self.name}"]
 
         line = " "
         for element in self.elements:
-            line += f"{element},"
+            line += f"{element.no},"
             if len(line) > 88:
                 lines.append(line)
                 line = " "
         return lines
 
+
+@dataclass
+class Orientation:
+    name: str
+    strings: list[str]
+
+    def dump(self):
+        lines = [f"*Orientation, name={self.name}"]
+        lines += self.strings
+        return lines
+
+
+ori1 = Orientation(name="Ori-1", strings=["1., 0., 0., 0., 1., 0.", "3, 0."])
 
 # ** Section: FR4
 # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
@@ -207,8 +220,25 @@ class Elset:
 class Section:
     name: str
     elset: Elset
-    orientation: str
+    orientation: Orientation
     material: Material
+
+    def dump(self):
+        # *Elset, elset=Set-FR4
+        # 2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,
+        # 50,53,56,59,
+        # ** Section: FR4
+        # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
+        # ,
+
+        # dump elset first
+        lines = self.elset.dump()
+        lines += [f"** Section: {self.name}"]
+        lines += [
+            f"*Solid Section, elset={self.elset}, orientation={self.orientation.name}, material={self.material.name}"
+        ]
+        lines += [","]
+        return lines
 
 
 @dataclass
@@ -274,25 +304,15 @@ class Inp:
         return lines
 
     def dump_sections(self):
+        """Includes elset and section."""
         # ** Section: FR4
         # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
         # ,
         if self.sections is None:
             return []
-        for section in self.sections:
-            lines = [f"** Section: {section.name}"]
-            lines += [
-                f"*Solid Section, elset={section.elset}, orientation={section.orientation}, material={section.material.name}"
-            ]
-            lines += [","]
-        return lines
-
-    def dump_elsets(self):
         lines = []
-        if self.elsets is None:
-            return []
-        for elset in self.elsets:
-            lines += elset.dump()
+        for section in self.sections:
+            lines += section.dump()
         return lines
 
     def write(self):
@@ -300,9 +320,8 @@ class Inp:
             f.writelines(line + "\n" for line in self.dump_heading())
             f.writelines(line + "\n" for line in self.dump_nodes())
             f.writelines(line + "\n" for line in self.dump_elements())
-            f.writelines(line + "\n" for line in self.dump_materials())
             f.writelines(line + "\n" for line in self.dump_sections())
-            f.writelines(line + "\n" for line in self.dump_elsets())
+            f.writelines(line + "\n" for line in self.dump_materials())
 
 
 def main():
@@ -344,8 +363,12 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
     image = Image.open(bmp_path).convert("L")  # Open and convert to grayscale
     width, height = image.size
 
+    set_fr4 = Elset(
+        name="Set-FR4",
+        elements=[],
+    )
+
     elements = []
-    nodes = []
 
     for y in range(height - 1):
         for x in range(width - 1):
@@ -363,11 +386,24 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
                 es = generate_element_by_layers(
                     x, y, layers=layers, grayscale=avg_grayscale
                 )
+                # start to add elements to elsets
+                if avg_grayscale < 255:
+                    # add to fr4 elset
+                    set_fr4.elements += es
+                # elif :
+
                 # assert isinstance(es, list), type(es)
                 elements += es
+    section_fr4 = Section(
+        name="FR4",
+        elset=set_fr4,
+        orientation=ori1,
+        material=fr4,
+    )
 
     test_inp.nodes = list(Node.select())
     test_inp.elements = elements
+    test_inp.sections.append(section_fr4)
     test_inp.write()
 
     # test

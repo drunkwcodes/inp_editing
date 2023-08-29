@@ -1,5 +1,7 @@
 # -*- coding: mbcs -*-
 # Do not delete the following import lines
+import os
+
 import __main__
 import assembly
 import connectorBehavior
@@ -18,7 +20,6 @@ import sketch
 import step
 import visualization
 import xyPlot
-import os
 from abaqus import *
 from abaqusConstants import *
 from caeModules import *
@@ -96,8 +97,9 @@ def take_4():
     session.viewports["Viewport: 1"].assemblyDisplay.setValues(
         adaptiveMeshConstraints=ON
     )
-    mdb.models['test'].FrequencyStep(name='Step-1', previous='Initial', 
-    minEigen=10.0, numEigen=10)
+    mdb.models["test"].FrequencyStep(
+        name="Step-1", previous="Initial", minEigen=10.0, numEigen=10
+    )
     session.viewports["Viewport: 1"].assemblyDisplay.setValues(step="Step-1")
     session.viewports["Viewport: 1"].assemblyDisplay.setValues(
         mesh=ON, adaptiveMeshConstraints=OFF
