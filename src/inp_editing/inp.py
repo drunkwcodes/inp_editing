@@ -1,32 +1,54 @@
 import itertools
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
 from PIL import Image
 
-
-@dataclass
-class Node:
-    x: float
-    y: float
-    z: float
-    no: int | None = None
-    id_iter = itertools.count(start=1)
-
-    def __post_init__(self):
-        if self.no is None:
-            self.no = next(self.id_iter)
-
-    def __hash__(self):
-        return self.no
+from inp_editing.models import Node, init_db, node_id
 
 
-def node_no(nodes: list[Node], x, y, z) -> int | None:
-    for node in nodes:
-        if node.x == x and node.y == y and node.z == z:
-            return node.no
+def find_project_root(cwd: str = ".", max_depth: int = 10) -> str | None:
+    """Recursively find a `pyproject.toml` at given path or current working directory.
+    If none if found, go to the parent directory, at most `max_depth` levels will be
+    looked for.
+    """
+    original_path = Path(cwd).absolute()
+    path = original_path
+    for _ in range(max_depth):
+        # print(path)
+        if path.joinpath("pyproject.toml").exists():
+            # return path.as_posix()
+            return path
+        if path.parent == path:
+            # Root path is reached
+            break
+        path = path.parent
     return None
+
+
+# @dataclass
+# class Node:
+#     x: float
+#     y: float
+#     z: float
+#     no: int | None = None
+#     id_iter = itertools.count(start=1)
+
+#     def __post_init__(self):
+#         if self.no is None:
+#             self.no = next(self.id_iter)
+
+#     def __hash__(self):
+#         return self.no
+
+
+# def node_no(nodes: list[Node], x, y, z) -> int | None:
+#     for node in nodes:
+#         if node.x == x and node.y == y and node.z == z:
+#             return node.no
+#     return None
 
 
 @dataclass
@@ -91,30 +113,23 @@ layer_copper = Layer(
 )
 
 
-
-
 def generate_element(
-    x, y, z_top, z_bottom, grayscale, material: Material, nodes: list[Node]
+    x, y, z_top, z_bottom, grayscale, material: Material
 ) -> Tuple[Element, list[Node]]:
-    print(f"{node_no(nodes, x, y, z_bottom) = }")
-    print(f"{nodes = }")
-    try:
-        input("Press Enter...")
-    except KeyboardInterrupt:
-        exit(1)
+    n1 = Node.get_or_create(x=x, y=y, z=z_bottom)[0]
+    n2 = Node.get_or_create(x=x + 1, y=y, z=z_bottom)[0]
+    n3 = Node.get_or_create(x=x + 1, y=y + 1, z=z_bottom)[0]
+    n4 = Node.get_or_create(x=x, y=y + 1, z=z_bottom)[0]
 
-    n1 = Node(x, y, z_bottom, no=node_no(nodes, x, y, z_bottom))
-    
-    n2 = Node(x + 1, y, z_bottom, no=node_no(nodes, x + 1, y, z_bottom))
-    n3 = Node(x + 1, y + 1, z_bottom, no=node_no(nodes, x + 1, y + 1, z_bottom))
-    n4 = Node(x, y + 1, z_bottom, no=node_no(nodes, x, y + 1, z_bottom))
-
-    n5 = Node(x, y, z_top, no=node_no(nodes, x, y, z_top))
-    n6 = Node(x + 1, y, z_top, no=node_no(nodes, x + 1, y, z_top))
-    n7 = Node(x + 1, y + 1, z_top, no=node_no(nodes, x + 1, y + 1, z_top))
-    n8 = Node(x, y + 1, z_top, no=node_no(nodes, x, y + 1, z_top))
+    n5 = Node.get_or_create(x=x, y=y, z=z_top)[0]
+    n6 = Node.get_or_create(x=x + 1, y=y, z=z_top)[0]
+    n7 = Node.get_or_create(x=x + 1, y=y + 1, z=z_top)[0]
+    n8 = Node.get_or_create(x=x, y=y + 1, z=z_top)[0]
 
     nodes = [n1, n2, n3, n4, n5, n6, n7, n8]
+    assert isinstance(nodes, list), type(nodes)
+    for node in nodes:
+        assert isinstance(node, Node), type(node)
 
     return (
         Element(
@@ -134,7 +149,7 @@ def generate_element_by_layers(
     for layer in layers:
         zs.append(zs[-1] + layer.thickness)
     elements = []
-    total_nodes = []
+    nodes = []
     for lindex, layer in enumerate(layers):
         element, ns = generate_element(
             x,
@@ -143,32 +158,59 @@ def generate_element_by_layers(
             z_bottom=zs[lindex],
             grayscale=grayscale,
             material=layer.material_type,
-            nodes=total_nodes,
         )
-        elements.append(element)
-        total_nodes += ns
-        print(f"{total_nodes = }")
+        # print(f"{total_nodes = }")
 
-    total_nodes = list(set(total_nodes))
-    return elements, total_nodes
+        # z_top = zs[lindex + 1]
+        # z_bottom = zs[lindex]
+
+        # element = Element(
+        #     nodes=nodes,
+        #     material=layer.material_type,
+        #     grayscale=grayscale,
+        # )
+        # elements.append(element)
+        # print(f"{total_nodes = }")
+        assert isinstance(element.nodes, list), type(element.nodes)
+        for node in element.nodes:
+            assert isinstance(node, Node), type(node)
+        elements.append(element)
+        nodes += ns
+
+    # total_nodes = list(set(total_nodes))
+    return elements
 
 
 @dataclass
 class Elset:
     name: str
-    elements: list[int]
+    elements: list[Element]
 
     def dump(self):
         lines = [f"*Elset, elset={self.name}"]
 
         line = " "
         for element in self.elements:
-            line += f"{element},"
-            if len(line) > 88:
+            line += f"{element.no},"
+            if line.count(",") >= 16:
                 lines.append(line)
                 line = " "
+        lines.append(line)
         return lines
 
+
+@dataclass
+class Orientation:
+    name: str
+    strings: list[str]
+
+    def dump(self):
+        lines = [f"*Orientation, name={self.name}"]
+        lines += self.strings
+        return lines
+
+
+ori1 = Orientation(name="Ori-1", strings=["1., 0., 0., 0., 1., 0.", "3, 0."])
 
 # ** Section: FR4
 # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
@@ -179,8 +221,25 @@ class Elset:
 class Section:
     name: str
     elset: Elset
-    orientation: str
+    orientation: Orientation
     material: Material
+
+    def dump(self):
+        # *Elset, elset=Set-FR4
+        # 2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,
+        # 50,53,56,59,
+        # ** Section: FR4
+        # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
+        # ,
+
+        # dump elset first
+        lines = self.elset.dump()
+        lines += [f"** Section: {self.name}"]
+        lines += [
+            f"*Solid Section, elset={self.elset.name}, orientation={self.orientation.name}, material={self.material.name}"
+        ]
+        lines += [","]
+        return lines
 
 
 @dataclass
@@ -205,7 +264,7 @@ class Inp:
             return []
         lines = ["*NODE"]
         for node in self.nodes:
-            lines.append(f"{node.no}, {node.x}, {node.y}, {node.z}")
+            lines.append(f"{node.id}, {node.x}, {node.y}, {node.z}")
         if self.nodes:
             return lines
 
@@ -216,7 +275,7 @@ class Inp:
         for element in self.elements:
             line = f"{element.no}, "
             for node in element.nodes:
-                line += f"{node.no}, "
+                line += f"{node.id}, "
             line.rstrip(", ")
             lines.append(line)
         return lines
@@ -246,25 +305,15 @@ class Inp:
         return lines
 
     def dump_sections(self):
+        """Includes elset and section."""
         # ** Section: FR4
         # *Solid Section, elset=Set-FR4, orientation=Ori-1, material=FR4
         # ,
         if self.sections is None:
             return []
-        for section in self.sections:
-            lines = [f"** Section: {section.name}"]
-            lines += [
-                f"*Solid Section, elset={section.elset}, orientation={section.orientation}, material={section.material.name}"
-            ]
-            lines += [","]
-        return lines
-
-    def dump_elsets(self):
         lines = []
-        if self.elsets is None:
-            return []
-        for elset in self.elsets:
-            lines += elset.dump()
+        for section in self.sections:
+            lines += section.dump()
         return lines
 
     def write(self):
@@ -272,12 +321,8 @@ class Inp:
             f.writelines(line + "\n" for line in self.dump_heading())
             f.writelines(line + "\n" for line in self.dump_nodes())
             f.writelines(line + "\n" for line in self.dump_elements())
-            f.writelines(line + "\n" for line in self.dump_materials())
             f.writelines(line + "\n" for line in self.dump_sections())
-            f.writelines(line + "\n" for line in self.dump_elsets())
-
-
-
+            f.writelines(line + "\n" for line in self.dump_materials())
 
 
 def main():
@@ -309,6 +354,7 @@ def main():
 
 
 def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
+    init_db()
     test_inp = Inp(
         heading=r"D:\projects\inp_editing\test.inp",
         materials=[copper_fr4, fr4],
@@ -318,8 +364,12 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
     image = Image.open(bmp_path).convert("L")  # Open and convert to grayscale
     width, height = image.size
 
+    set_fr4 = Elset(
+        name="Set-FR4",
+        elements=[],
+    )
+
     elements = []
-    nodes = []
 
     for y in range(height - 1):
         for x in range(width - 1):
@@ -334,20 +384,45 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
             avg_grayscale = sum(grayscale_values) // 4
 
             if avg_grayscale < 255:  # Not white
-                es, ns = generate_element_by_layers(
+                es = generate_element_by_layers(
                     x, y, layers=layers, grayscale=avg_grayscale
                 )
-                elements += es
-                nodes += ns
+                # start to add elements to elsets
+                if avg_grayscale < 255:
+                    # add to fr4 elset
+                    set_fr4.elements += es
+                # elif :
 
-    test_inp.nodes = nodes
+                # assert isinstance(es, list), type(es)
+                elements += es
+
+    # assert len(elements) == len(set_fr4.elements), f"{len(elements)} != {len(set_fr4.elements)}"
+    section_fr4 = Section(
+        name="FR4",
+        elset=set_fr4,
+        orientation=ori1,
+        material=fr4,
+    )
+
+    test_inp.nodes = list(Node.select())
     test_inp.elements = elements
+    test_inp.sections =[section_fr4]
     test_inp.write()
 
     # test
-    print(f"{node_no(nodes, 26, 5, 0) = }")
+    # print(f"{node_no(nodes, 26, 5, 0) = }")
 
 
 if __name__ == "__main__":
     # main()
+    start_time = time.time()
     read_bmp_and_create_elements(bmp_path="resized_200x200.bmp")
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+
+    hours = int(elapsed_time // 3600)
+    minutes = int((elapsed_time % 3600) // 60)
+    seconds = int(elapsed_time % 60)
+
+    print(f"Execution time: {hours} hours, {minutes} minutes, {seconds} seconds")

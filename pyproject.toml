@@ -1,0 +1,21 @@
+[project]
+name = "inp_editing"
+version = "0.1.0"
+description = "Input an image, and output and .inp file."
+authors = [
+    {name = "Eric", email = "eric@simutech.com.tw"},
+]
+dependencies = [
+    "opencv-python",
+    "pillow",
+    "matplotlib",
+    "peewee>=3.16.3",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
