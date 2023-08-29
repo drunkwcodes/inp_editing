@@ -116,17 +116,20 @@ layer_copper = Layer(
 def generate_element(
     x, y, z_top, z_bottom, grayscale, material: Material
 ) -> Tuple[Element, list[Node]]:
-    n1 = Node.get_or_create(x=x, y=y, z=z_bottom)
-    n2 = Node.get_or_create(x=x + 1, y=y, z=z_bottom)
-    n3 = Node.get_or_create(x=x + 1, y=y + 1, z=z_bottom)
-    n4 = Node.get_or_create(x=x, y=y + 1, z=z_bottom)
+    n1 = Node.get_or_create(x=x, y=y, z=z_bottom)[0]
+    n2 = Node.get_or_create(x=x + 1, y=y, z=z_bottom)[0]
+    n3 = Node.get_or_create(x=x + 1, y=y + 1, z=z_bottom)[0]
+    n4 = Node.get_or_create(x=x, y=y + 1, z=z_bottom)[0]
 
-    n5 = Node.get_or_create(x=x, y=y, z=z_top)
-    n6 = Node.get_or_create(x=x + 1, y=y, z=z_top)
-    n7 = Node.get_or_create(x=x + 1, y=y + 1, z=z_top)
-    n8 = Node.get_or_create(x=x, y=y + 1, z=z_top)
+    n5 = Node.get_or_create(x=x, y=y, z=z_top)[0]
+    n6 = Node.get_or_create(x=x + 1, y=y, z=z_top)[0]
+    n7 = Node.get_or_create(x=x + 1, y=y + 1, z=z_top)[0]
+    n8 = Node.get_or_create(x=x, y=y + 1, z=z_top)[0]
 
     nodes = [n1, n2, n3, n4, n5, n6, n7, n8]
+    assert isinstance(nodes, list), type(nodes)
+    for node in nodes:
+        assert isinstance(node, Node), type(node)
 
     return (
         Element(
@@ -168,7 +171,9 @@ def generate_element_by_layers(
         # )
         # elements.append(element)
         # print(f"{total_nodes = }")
-
+        assert isinstance(element.nodes, list), type(element.nodes)
+        for node in element.nodes:
+            assert isinstance(node, Node), type(node)
         elements.append(element)
         nodes += ns
 
@@ -239,7 +244,7 @@ class Inp:
         for element in self.elements:
             line = f"{element.no}, "
             for node in element.nodes:
-                line += f"{node.no}, "
+                line += f"{node.id}, "
             line.rstrip(", ")
             lines.append(line)
         return lines
