@@ -18,6 +18,7 @@ import sketch
 import step
 import visualization
 import xyPlot
+import os
 from abaqus import *
 from abaqusConstants import *
 from caeModules import *
@@ -51,7 +52,7 @@ def take_4():
     a = mdb.models["Model-1"].rootAssembly
     session.viewports["Viewport: 1"].setValues(displayedObject=a)
     mdb.ModelFromInputFile(
-        name="test", inputFileName="D:/projects/inp_editing/test.inp"
+        name="test", inputFileName=os.path.join(os.getcwd(), "test.inp")
     )
     #: The model "test" has been created.
     #: The part "PART-1" has been imported from the input file.
