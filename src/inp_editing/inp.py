@@ -195,6 +195,7 @@ class Elset:
             if line.count(",") >= 16:
                 lines.append(line)
                 line = " "
+        lines.append(line)
         return lines
 
 
@@ -394,6 +395,8 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
 
                 # assert isinstance(es, list), type(es)
                 elements += es
+
+    # assert len(elements) == len(set_fr4.elements), f"{len(elements)} != {len(set_fr4.elements)}"
     section_fr4 = Section(
         name="FR4",
         elset=set_fr4,
