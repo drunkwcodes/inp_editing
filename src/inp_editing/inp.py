@@ -192,7 +192,7 @@ class Elset:
         line = " "
         for element in self.elements:
             line += f"{element.no},"
-            if len(line) > 88:
+            if line.count(",") >= 16:
                 lines.append(line)
                 line = " "
         return lines
@@ -235,7 +235,7 @@ class Section:
         lines = self.elset.dump()
         lines += [f"** Section: {self.name}"]
         lines += [
-            f"*Solid Section, elset={self.elset}, orientation={self.orientation.name}, material={self.material.name}"
+            f"*Solid Section, elset={self.elset.name}, orientation={self.orientation.name}, material={self.material.name}"
         ]
         lines += [","]
         return lines
@@ -403,7 +403,7 @@ def read_bmp_and_create_elements(bmp_path="resized_100x100.bmp", thickness=0.3):
 
     test_inp.nodes = list(Node.select())
     test_inp.elements = elements
-    test_inp.sections.append(section_fr4)
+    test_inp.sections =[section_fr4]
     test_inp.write()
 
     # test
