@@ -5,7 +5,7 @@ from pathlib import Path
 import pya
 
 gds_path=str(Path(__file__).parent.parent.parent / "PNL.gds")
-output_path=str(Path(__file__).parent.parent.parent / "bw2.png")
+output_path=str(Path(__file__).parent.parent.parent / "bw5.png")
 app = (
     pya.Application.instance()
 )  # TODO: FIXME module 'pya' has no attribute 'Application'
@@ -26,7 +26,7 @@ for lyp in layout_view.each_layer():
     # layer_info.visible = False  # Make the layer invisible
     if lyp.layer_index() == 4:
         lyp.visible = False
-screenshot = layout_view.get_screenshot()
-screenshot.save(output_path, "PNG", -1)
-
-# layout_view.save_image(output_path, 2000, 2000)
+# screenshot = layout_view.get_screenshot()
+# screenshot.save(output_path, "PNG", -1)
+layout_view.zoom_fit()  # not working
+layout_view.save_image(output_path, 2000, 2000)
