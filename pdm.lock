@@ -6,7 +6,7 @@ groups = ["default"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:cc85355905e637171692df4f2e0c78f79f8bb282ab51485f2b0b747a8735229d"
+content_hash = "sha256:2df78c660f5bcf2a31a706f55b7f1c0ea1a434dc56df4e8a5a83a3b9eeb75bf1"
 
 [[package]]
 name = "contourpy"
@@ -145,6 +145,26 @@ files = [
     {file = "kiwisolver-1.4.5-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:210ef2c3a1f03272649aff1ef992df2e724748918c4bc2d5a90352849eb40bea"},
     {file = "kiwisolver-1.4.5-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:11d011a7574eb3b82bcc9c1a1d35c1d7075677fdd15de527d91b46bd35e935ee"},
     {file = "kiwisolver-1.4.5.tar.gz", hash = "sha256:e57e563a57fb22a142da34f38acc2fc1a5c864bc29ca1517a88abc963e60d6ec"},
+]
+
+[[package]]
+name = "klayout"
+version = "0.28.11"
+summary = "KLayout standalone Python package"
+files = [
+    {file = "klayout-0.28.11-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a1a2fa217933b8102fa8882b368320483334fd53baa544dea21b6c7b12f844dd"},
+    {file = "klayout-0.28.11-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9e168f7a158230959b27aec8668326f70d2f8524897be104d9e6cdbca205cf7d"},
+    {file = "klayout-0.28.11-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7cea5295bad0f506d0096c855d68ee3d1409df65769008c26ce3cd30811ed52e"},
+    {file = "klayout-0.28.11-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:66b8f0553f6ba0d7043a849c1ad8b791368afe2e3ca32aafae6fcd4338667057"},
+    {file = "klayout-0.28.11-cp310-cp310-win32.whl", hash = "sha256:0d6ca1198c8ef70f85ea13be38e05d3745e7d8ae2f8f3ba24adfd1605df9c6fd"},
+    {file = "klayout-0.28.11-cp310-cp310-win_amd64.whl", hash = "sha256:5872a49a40958ea313b181e38cb01a8340ce9618105ea8f0960c93d045ec0fb3"},
+    {file = "klayout-0.28.11-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:6493500e1c586908aff0c203d2da6c41c9311806e58da1166266dcf46f99556e"},
+    {file = "klayout-0.28.11-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a95365e571308a604070bbb395d5abadbdedc956150bf23048a0a5cb9090b3b0"},
+    {file = "klayout-0.28.11-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e6ce9764c28a0c83037e505d5d4b59345cfba58cacb91af65852918ba5ec3642"},
+    {file = "klayout-0.28.11-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:a84675cdd37be5937c17539082758efab774afa1a8d57afc03adef7bd61b1ca9"},
+    {file = "klayout-0.28.11-cp311-cp311-win32.whl", hash = "sha256:3a04e569867bbe049d799fdfcef5ad3daa64fe138949d4ebd91bd25ed3534c39"},
+    {file = "klayout-0.28.11-cp311-cp311-win_amd64.whl", hash = "sha256:9e8d37c42948ce3fde2da2f2fd46d47365987a1547aae6493f04aac215a5bfde"},
+    {file = "klayout-0.28.11.tar.gz", hash = "sha256:b194e694c2c83c5077f418c9628229cc6054f417d02a385f8a2e90ef87d6b152"},
 ]
 
 [[package]]

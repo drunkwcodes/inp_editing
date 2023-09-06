@@ -1,8 +1,11 @@
 import csv
+from pathlib import Path
+
 
 import cv2
 import matplotlib.pyplot as plt
 from PIL import Image
+import pya
 
 
 def main():
@@ -31,6 +34,8 @@ def main():
     cv2.imwrite("resized_200x200.bmp", imageResize200x200)
     cv2.imwrite("resized_100x100.bmp", imageResize100x100)
     cv2.imwrite("resized_20x20.bmp", imageResize20x20)
+
+
 
 
 if __name__ == "__main__":
